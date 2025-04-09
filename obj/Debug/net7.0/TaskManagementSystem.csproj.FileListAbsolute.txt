@@ -1,0 +1,7 @@
+C:\Users\Laiba\OneDrive\Desktop\{LaibaAhsan} Task Management System\TaskManagementSystem\obj\Debug\net7.0\TaskManagementSystem.csproj.AssemblyReference.cache
+C:\Users\Laiba\OneDrive\Desktop\{LaibaAhsan} Task Management System\TaskManagementSystem\obj\Debug\net7.0\TaskManagementSystem.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Laiba\OneDrive\Desktop\{LaibaAhsan} Task Management System\TaskManagementSystem\obj\Debug\net7.0\TaskManagementSystem.AssemblyInfoInputs.cache
+C:\Users\Laiba\OneDrive\Desktop\{LaibaAhsan} Task Management System\TaskManagementSystem\obj\Debug\net7.0\TaskManagementSystem.AssemblyInfo.cs
+C:\Users\Laiba\OneDrive\Desktop\{LaibaAhsan} Task Management System\TaskManagementSystem\obj\Debug\net7.0\TaskManagementSystem.csproj.CoreCompileInputs.cache
+C:\Users\Laiba\OneDrive\Desktop\{LaibaAhsan} Task Management System\TaskManagementSystem\obj\Debug\net7.0\TaskManagementSystem.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Laiba\OneDrive\Desktop\{LaibaAhsan} Task Management System\TaskManagementSystem\obj\Debug\net7.0\TaskManagementSystem.MvcApplicationPartsAssemblyInfo.cache
