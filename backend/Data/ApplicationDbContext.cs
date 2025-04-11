@@ -9,21 +9,28 @@ namespace TaskManagementSystem.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
 
-        // DbSet for other models (e.g., TaskItem)
         public DbSet<TaskItem> Tasks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); // Ensure Identity tables are configured properly
+            base.OnModelCreating(modelBuilder);
 
-            // Configure the custom properties for ApplicationUser explicitly
+            // Configure ApplicationUser properties
             modelBuilder.Entity<ApplicationUser>()
                 .Property(u => u.FullName)
-                .HasMaxLength(255);  // Adjust the length for FullName as per your requirement
+                .HasMaxLength(255);
 
             modelBuilder.Entity<ApplicationUser>()
                 .Property(u => u.ProfilePictureUrl)
-                .HasMaxLength(500); // Set a maximum length for the ProfilePictureUrl (e.g., URL length)
+                .HasMaxLength(500);
+
+            // ✅ Configure the relationship (nullable FK)
+            modelBuilder.Entity<TaskItem>()
+                .HasOne(t => t.AssignedUser)
+                .WithMany()
+                .HasForeignKey(t => t.AssignedUserId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
