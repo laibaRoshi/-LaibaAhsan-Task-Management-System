@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 
 const Register = () => {
   const [form, setForm] = useState({
-    fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
+    fullName: '',
     profilePictureUrl: '',
   });
 
@@ -20,52 +20,62 @@ const Register = () => {
     }));
   };
 
+  const isValidUrl = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
 
-    if (!form.fullName.trim()) {
-      setError('Full Name is required.');
-      return;
+    // ✅ Warn user if the ProfilePictureUrl is invalid
+    if (form.profilePictureUrl && !isValidUrl(form.profilePictureUrl)) {
+      alert("The Profile Picture URL is invalid. A default image will be used.");
     }
 
-    // Optional: simple frontend validation
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+    // ✅ Use default placeholder if invalid or empty
+    const profileUrl = isValidUrl(form.profilePictureUrl)
+      ? form.profilePictureUrl
+      : "https://via.placeholder.com/150";
+
+    const formData = {
+      ...form,
+      profilePictureUrl: profileUrl,
+    };
 
     try {
       const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullName: form.fullName,
-          email: form.email,
-          password: form.password,
-          confirmPassword: form.confirmPassword,
-          profilePictureUrl: form.profilePictureUrl,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       });
 
-      const text = await response.text();
+      let data;
 
-      try {
-        const data = JSON.parse(text);
-
-        if (response.ok) {
+      if (response.ok) {
+        try {
+          data = await response.json();
           setMessage(data.message || "Registration successful!");
-        } else {
-          setError(data.message || "Registration failed.");
+        } catch (jsonError) {
+          throw new Error("Server returned a non-JSON response.");
         }
-      } catch {
-        setError(`Server returned non-JSON error: ${text}`);
+      } else {
+        try {
+          data = await response.json();
+          setError(data.message || JSON.stringify(data.errors));
+        } catch {
+          const text = await response.text();
+          setError(`Server error: ${text}`);
+        }
       }
     } catch (err) {
-      setError(`Error: ${err.message}`);
+      setError(err.message);
       console.error(err);
     }
   };
@@ -108,13 +118,13 @@ const Register = () => {
           onChange={handleChange}
           required
         />
+        
         <input
           type="text"
           name="profilePictureUrl"
           placeholder="Profile Picture URL"
           value={form.profilePictureUrl}
           onChange={handleChange}
-          required
         />
         <button type="submit">Register</button>
       </form>

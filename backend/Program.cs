@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure CORS to allow frontend requests
+// CORS setup
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins", builder =>
@@ -23,14 +23,13 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Add DbContext with SQL Server configuration
+// Add EF DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add Identity services (Ensure Identity and EF are set up)
+// Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
-    // Optional: Customize identity settings (e.g., password policies)
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
@@ -40,9 +39,12 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders()
-.AddSignInManager(); // Ensure SignInManager is added
+.AddSignInManager();
 
-// Add JWT Authentication
+// JWT Authentication
+var jwtKey = builder.Configuration["Jwt:SecretKey"];
+var key = Encoding.UTF8.GetBytes(jwtKey);
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -58,10 +60,9 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],         // Corrected key
-        ValidAudience = builder.Configuration["Jwt:Audience"],     // Corrected key
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))  // Corrected key
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });
 
@@ -70,19 +71,20 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Development environment tools
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAllOrigins");  // Ensure CORS policy is applied
+// Apply middleware
+app.UseCors("AllowAllOrigins");
+app.UseAuthentication();
+app.UseAuthorization();
 
-app.UseAuthentication();  // Enable Authentication middleware
-app.UseAuthorization();   // Enable Authorization middleware
+app.MapControllers();
 
-app.MapControllers(); // Map API controllers to routes
-app.MapGet("/", () => "Welcome to Task Management System API!");  // Optional: Add a simple root endpoint
+app.MapGet("/", () => "Welcome to Task Management System API!");
 
 app.Run();

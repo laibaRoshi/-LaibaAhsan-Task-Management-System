@@ -18,7 +18,7 @@ namespace TaskManagementSystem.Models
         [Required]
         public string FullName { get; set; }  // Ensure this field is required
 
-        [Url]
-        public string ProfilePictureUrl { get; set; }
+        [Url(ErrorMessage = "The ProfilePictureUrl field must be a valid URL.")]
+        public string? ProfilePictureUrl { get; set; }
     }
 }
