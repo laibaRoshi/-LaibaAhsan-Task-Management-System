@@ -25,6 +25,11 @@ const Register = () => {
     setError('');
     setMessage('');
 
+    if (!form.fullName.trim()) {
+      setError('Full Name is required.');
+      return;
+    }
+
     // Optional: simple frontend validation
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match.");

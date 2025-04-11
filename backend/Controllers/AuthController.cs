@@ -29,9 +29,9 @@ namespace TaskManagementSystem.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            if (model.Password != model.ConfirmPassword)
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Passwords do not match.");
+                return BadRequest(ModelState);
             }
 
             var user = new ApplicationUser
@@ -49,7 +49,7 @@ namespace TaskManagementSystem.Controllers
                 return Ok(new { message = "Registration successful!" });
             }
 
-            return BadRequest(result.Errors);
+            return BadRequest(new { message = "Registration failed", errors = result.Errors });
         }
 
 
