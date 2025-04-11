@@ -1,7 +1,11 @@
+/* Global App styles */
 .App {
+  padding: 2rem;
   text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Logo (if used) */
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -13,21 +17,147 @@
   }
 }
 
+/* Header section */
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.App-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
 }
 
+.App-header p {
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto 1.5rem auto;
+}
+
+/* Navigation */
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+nav a {
+  color: #61dafb;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+/* Task list section */
+.task-list {
+  padding: 2rem;
+  max-width: 600px;
+  margin: auto;
+}
+
+.task-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.task-list li {
+  background-color: #f2f2f2;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+/* Form Container (for Login & Register) */
+.form-container {
+  background-color: #ffffff;
+  max-width: 400px;
+  margin: 5rem auto;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-container:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+}
+
+.form-container h2 {
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.form-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-container input {
+  padding: 0.8rem;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-container input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+.form-container button {
+  padding: 0.8rem;
+  font-size: 1.1rem;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.form-container button:hover {
+  background-color: #0056b3;
+  transform: translateY(-3px);
+}
+
+.form-container button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+  transform: translateY(0);
+}
+
+.form-container .password-error {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  margin-top: -1rem;
+  margin-bottom: 1rem;
+}
+
+.form-container input[type="text"]:focus,
+.form-container input[type="password"]:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+/* Keyframes */
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

@@ -1,4 +1,8 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using TaskManagementSystem.Data;
 using TaskManagementSystem.Models;
 
@@ -23,7 +27,45 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add controllers for the Task API
+// Add Identity services (Ensure Identity and EF are set up)
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    // Optional: Customize identity settings (e.g., password policies)
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders()
+.AddSignInManager(); // Ensure SignInManager is added
+
+// Add JWT Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],         // Corrected key
+        ValidAudience = builder.Configuration["Jwt:Audience"],     // Corrected key
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))  // Corrected key
+    };
+});
+
+// Add controllers
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -35,85 +77,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection();
+app.UseCors("AllowAllOrigins");  // Ensure CORS policy is applied
 
-// Enable CORS
-app.UseCors("AllowAllOrigins");
+app.UseAuthentication();  // Enable Authentication middleware
+app.UseAuthorization();   // Enable Authorization middleware
 
-// Map Task-related API routes
-app.MapGet("/", () => "Welcome to the Task Management System!");
+app.MapControllers(); // Map API controllers to routes
+app.MapGet("/", () => "Welcome to Task Management System API!");  // Optional: Add a simple root endpoint
 
-// API endpoint for retrieving all tasks
-app.MapGet("/api/tasks", async (ApplicationDbContext context) =>
-{
-    return await context.Tasks.ToListAsync();
-});
-
-// API endpoint for retrieving a task by id
-app.MapGet("/api/tasks/{id}", async (int id, ApplicationDbContext context) =>
-{
-    var task = await context.Tasks.FindAsync(id);
-    return task is not null ? Results.Ok(task) : Results.NotFound();
-});
-
-// API endpoint for creating a new task
-app.MapPost("/api/tasks", async (TaskItem task, ApplicationDbContext context) =>
-{
-    context.Tasks.Add(task);
-    await context.SaveChangesAsync();
-    return Results.Created($"/api/tasks/{task.Id}", task);
-});
-
-// API endpoint for updating a task
-app.MapPut("/api/tasks/{id}", async (int id, TaskItem updatedTask, ApplicationDbContext context) =>
-{
-    var task = await context.Tasks.FindAsync(id);
-    if (task is null) return Results.NotFound();
-
-    task.Title = updatedTask.Title;
-    task.Description = updatedTask.Description;
-    task.DueDate = updatedTask.DueDate;
-    task.IsCompleted = updatedTask.IsCompleted;
-
-    await context.SaveChangesAsync();
-    return Results.Ok(task);
-});
-
-// API endpoint for deleting a task
-app.MapDelete("/api/tasks/{id}", async (int id, ApplicationDbContext context) =>
-{
-    var task = await context.Tasks.FindAsync(id);
-    if (task is null) return Results.NotFound();
-
-    context.Tasks.Remove(task);
-    await context.SaveChangesAsync();
-    return Results.NoContent();
-});
-
-// Weather forecast route (you can remove or modify this part)
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
-// Run the application
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
